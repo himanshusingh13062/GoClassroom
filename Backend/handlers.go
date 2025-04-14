@@ -17,6 +17,19 @@ type Student struct {
 	CreatedAt string `json:"created_at,omitempty"`
 }
 
+type Teacher struct {
+	ID          int    `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone,omitempty"`
+	DOB         string `json:"dob,omitempty"`
+	TeacherID   string `json:"teacher_id"`
+	Designation string `json:"designation"`
+	Department  string `json:"department"`
+	CreatedAt   string `json:"created_at,omitempty"`
+}
+
 type Attendance struct {
 	ID        int    `json:"id"`
 	StudentID int    `json:"student_id"`
@@ -35,7 +48,6 @@ func createStudent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
-
 	query := `INSERT INTO students (first_name, last_name, email, phone, dob) VALUES (?, ?, ?, ?, ?)`
 	result, err := db.Exec(query, student.FirstName, student.LastName, student.Email, student.Phone, student.DOB)
 	if err != nil {
@@ -51,6 +63,33 @@ func createStudent(c *gin.Context) {
 
 	student.ID = int(lastInsertID)
 	c.JSON(http.StatusOK, student)
+}
+
+// POST /teacher
+func createTeacher(c *gin.Context) {
+	var teacher Teacher
+	if err := c.BindJSON(&teacher); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	query := `INSERT INTO teachers (first_name, last_name, email, phone, dob, teacher_id, designation, department) 
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	result, err := db.Exec(query, teacher.FirstName, teacher.LastName, teacher.Email, teacher.Phone, teacher.DOB,
+		teacher.TeacherID, teacher.Designation, teacher.Department)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch last inserted ID"})
+		return
+	}
+
+	teacher.ID = int(lastInsertID)
+	c.JSON(http.StatusOK, teacher)
 }
 
 // GET /students
@@ -73,6 +112,26 @@ func getAllStudents(c *gin.Context) {
 	c.JSON(http.StatusOK, students)
 }
 
+// GET /teachers
+func getAllTeachers(c *gin.Context) {
+	rows, err := db.Query("SELECT id, first_name, last_name, email, phone, dob, teacher_id, designation, department, created_at FROM teachers")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query teachers"})
+		return
+	}
+	defer rows.Close()
+
+	var teachers []Teacher
+	for rows.Next() {
+		var t Teacher
+		if err := rows.Scan(&t.ID, &t.FirstName, &t.LastName, &t.Email, &t.Phone, &t.DOB, &t.TeacherID, &t.Designation, &t.Department, &t.CreatedAt); err != nil {
+			continue
+		}
+		teachers = append(teachers, t)
+	}
+	c.JSON(http.StatusOK, teachers)
+}
+
 // POST /attendance
 func markAttendance(c *gin.Context) {
 	var a Attendance
@@ -91,6 +150,7 @@ func markAttendance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Attendance marked successfully"})
 }
 
+// GET /students/:id
 func getStudentByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -110,6 +170,27 @@ func getStudentByID(c *gin.Context) {
 	c.JSON(http.StatusOK, student)
 }
 
+// GET /teachers/:id
+func getTeacherByID(c *gin.Context) {
+	id := c.Param("id")
+
+	var teacher Teacher
+	err := db.QueryRow("SELECT id, first_name, last_name, email, phone, dob, teacher_id, designation, department, created_at FROM teachers WHERE id = ?", id).
+		Scan(&teacher.ID, &teacher.FirstName, &teacher.LastName, &teacher.Email, &teacher.Phone, &teacher.DOB, &teacher.TeacherID, &teacher.Designation, &teacher.Department, &teacher.CreatedAt)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Teacher not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, teacher)
+}
+
+// GET /students/:id/attendance
 func getAttendanceByStudentID(c *gin.Context) {
 	id := c.Param("id")
 	rows, err := db.Query("SELECT id, student_id, date, status FROM attendance WHERE student_id = ?", id)
