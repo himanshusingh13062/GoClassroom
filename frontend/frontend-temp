@@ -1,1 +1,12 @@
+first go into the main directory where you want your frontend folder
 
+then write the folllowing in the terminal in the same path
+
+'''
+npx create-react-app frontend
+'''
+
+the you can see the src folder, replace that folder with mine 
+
+to start the frontend, write in ternmail "npm start".
+to satrt the backend, write in terminal "go run .".
