@@ -1,0 +1,151 @@
+mysql> use go_classroom_ver3;
+Database changed
+mysql> show tables;
++-----------------------------+
+| Tables_in_go_classroom_ver3 |
++-----------------------------+
+| assignments                 |
+| attendance                  |
+| classroom_students          |
+| classrooms                  |
+| marks                       |
+| notes                       |
+| students                    |
+| subscriptions               |
+| teachers                    |
+| users                       |
+| years                       |
++-----------------------------+
+11 rows in set (0.02 sec)
+
+mysql> desc assignments;
++---------------+--------------+------+-----+-------------------+-------------------+
+| Field         | Type         | Null | Key | Default           | Extra             |
++---------------+--------------+------+-----+-------------------+-------------------+
+| assignment_id | int          | NO   | PRI | NULL              | auto_increment    |
+| classroom_id  | int          | NO   | MUL | NULL              |                   |
+| title         | varchar(255) | NO   |     | NULL              |                   |
+| description   | text         | NO   |     | NULL              |                   |
+| due_date      | datetime     | NO   |     | NULL              |                   |
+| created_at    | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| file_url      | varchar(500) | YES  |     | NULL              |                   |
++---------------+--------------+------+-----+-------------------+-------------------+
+7 rows in set (0.01 sec)
+
+mysql> desc attendance;
++------------+---------------------------------+------+-----+---------+----------------+
+| Field      | Type                            | Null | Key | Default | Extra          |
++------------+---------------------------------+------+-----+---------+----------------+
+| id         | int                             | NO   | PRI | NULL    | auto_increment |
+| student_id | int                             | YES  | MUL | NULL    |                |
+| date       | date                            | YES  |     | NULL    |                |
+| status     | enum('Present','Absent','Late') | NO   |     | NULL    |                |
++------------+---------------------------------+------+-----+---------+----------------+
+4 rows in set (0.14 sec)
+
+mysql> desc classroom_students;
++--------------+-----------+------+-----+-------------------+-------------------+
+| Field        | Type      | Null | Key | Default           | Extra             |
++--------------+-----------+------+-----+-------------------+-------------------+
+| id           | int       | NO   | PRI | NULL              | auto_increment    |
+| student_id   | int       | NO   | MUL | NULL              |                   |
+| classroom_id | int       | NO   | MUL | NULL              |                   |
+| joined_at    | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++--------------+-----------+------+-----+-------------------+-------------------+
+4 rows in set (0.00 sec)
+
+mysql> desc classrooms;
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| id         | int          | NO   | PRI | NULL    | auto_increment |
+| teacher_id | int          | NO   |     | NULL    |                |
+| code       | varchar(255) | NO   | UNI | NULL    |                |
+| created_at | datetime     | NO   |     | NULL    |                |
+| name       | varchar(100) | NO   |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> desc marks;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int          | NO   | PRI | NULL    | auto_increment |
+| student_id   | int          | NO   | MUL | NULL    |                |
+| classroom_id | int          | NO   | MUL | NULL    |                |
+| title        | varchar(255) | NO   |     | NULL    |                |
+| score        | float        | NO   |     | NULL    |                |
+| max_score    | float        | NO   |     | NULL    |                |
+| type         | varchar(50)  | NO   |     | NULL    |                |
+| date         | date         | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+8 rows in set (0.00 sec)
+
+mysql> desc notes;
++--------------+--------------+------+-----+-------------------+-------------------+
+| Field        | Type         | Null | Key | Default           | Extra             |
++--------------+--------------+------+-----+-------------------+-------------------+
+| id           | int          | NO   | PRI | NULL              | auto_increment    |
+| classroom_id | int          | NO   | MUL | NULL              |                   |
+| title        | varchar(255) | NO   |     | NULL              |                   |
+| content      | text         | NO   |     | NULL              |                   |
+| created_at   | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| file_url     | varchar(500) | YES  |     | NULL              |                   |
++--------------+--------------+------+-----+-------------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> desc students;
++---------------+--------------+------+-----+-------------------+-------------------+
+| Field         | Type         | Null | Key | Default           | Extra             |
++---------------+--------------+------+-----+-------------------+-------------------+
+| student_id    | int          | NO   | PRI | NULL              | auto_increment    |
+| user_id       | int          | NO   | UNI | NULL              |                   |
+| enrollment_no | varchar(20)  | NO   | UNI | NULL              |                   |
+| name          | varchar(100) | NO   |     | NULL              |                   |
+| year_id       | int          | NO   |     | NULL              |                   |
+| created_at    | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++---------------+--------------+------+-----+-------------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> desc subscriptions;
++--------------+------+------+-----+---------+----------------+
+| Field        | Type | Null | Key | Default | Extra          |
++--------------+------+------+-----+---------+----------------+
+| id           | int  | NO   | PRI | NULL    | auto_increment |
+| teacher_id   | int  | NO   |     | NULL    |                |
+| classroom_id | int  | NO   | MUL | NULL    |                |
++--------------+------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> desc teachers;
++--------------+--------------+------+-----+-------------------+-------------------+
+| Field        | Type         | Null | Key | Default           | Extra             |
++--------------+--------------+------+-----+-------------------+-------------------+
+| teacher_id   | int          | NO   | PRI | NULL              | auto_increment    |
+| user_id      | int          | NO   | UNI | NULL              |                   |
+| teacher_code | varchar(20)  | NO   | UNI | NULL              |                   |
+| name         | varchar(100) | NO   |     | NULL              |                   |
+| designation  | varchar(100) | NO   |     | NULL              |                   |
+| created_at   | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++--------------+--------------+------+-----+-------------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> desc  users;
++---------------+---------------------------+------+-----+---------+----------------+
+| Field         | Type                      | Null | Key | Default | Extra          |
++---------------+---------------------------+------+-----+---------+----------------+
+| user_id       | int                       | NO   | PRI | NULL    | auto_increment |
+| username      | varchar(50)               | NO   | UNI | NULL    |                |
+| password_hash | varchar(255)              | NO   |     | NULL    |                |
+| user_type     | enum('student','teacher') | NO   |     | NULL    |                |
++---------------+---------------------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> desc  years;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| year_id   | int         | NO   | PRI | NULL    | auto_increment |
+| year_name | varchar(50) | NO   |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
